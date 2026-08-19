@@ -80,7 +80,9 @@ export default class TicketService {
         throw new Error(`Ошибка сервера, статус: ${response.status}`);
       }
       const updatedTicket = await response.json();
+
       if (callback) callback(updatedTicket);
+
       return updatedTicket;
     } catch (error) {
       console.error('Произошла ошибка при обновлении тикета:', error.message);

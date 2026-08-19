@@ -24,9 +24,16 @@ export default class TicketView {
     const itemInfo = document.createElement('div');
     itemInfo.classList.add('item-info');
 
+    const targetBox = document.createElement('div');
+    targetBox.classList.add('targetBox');
+
     const target = document.createElement('span');
     target.classList.add('target');
     target.textContent = ticketName;
+
+    const fullTarget = document.createElement('span');
+    fullTarget.classList.add('description', 'hidden');
+    fullTarget.textContent = ticketDiscription;
 
     const ticketDate = document.createElement('time');
     ticketDate.classList.add('ticket-date');
@@ -34,10 +41,11 @@ export default class TicketView {
     const fullDate = dateCreate.toLocaleString('ru-RU', {
       day: 'numeric',
       month: '2-digit',
+      year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
     });
-    ticketDate.textContent = fullDate;
+    ticketDate.textContent = fullDate.replace(',', '.');
 
     const btnBox = document.createElement('div');
     btnBox.classList.add('btn-box');
@@ -49,7 +57,8 @@ export default class TicketView {
     btnDelete.classList.add('btn', 'delete');
 
     btnBox.append(btnEdit, btnDelete);
-    itemInfo.append(target, ticketDate);
+    targetBox.append(target, fullTarget);
+    itemInfo.append(targetBox, ticketDate);
     item.append(itemStatus, itemInfo, btnBox);
     this.element.append(item);
   }
@@ -60,7 +69,8 @@ export default class TicketView {
     if (!allTicket || allTicket.length === 0) return;
 
     allTicket.forEach((el) => {
-      const { name, description, status, created } = el;
+      const { description, name, status, created } = el;
+      console.log(el);
 
       this.createTargetItem(name, description, status, created);
     });

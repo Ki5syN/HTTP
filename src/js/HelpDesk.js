@@ -21,8 +21,7 @@ export default class HelpDesk {
 
     this.onClick.bind(this);
 
-    this.container.addEventListener('click', this.onClick.bind(this));
-    // this.container.addEventListener('submit', onSubmit);
+    this.container.addEventListener('click', this.onClick.bind(this));    
   }
 
   init() {
@@ -39,8 +38,23 @@ export default class HelpDesk {
       return;
     }
 
+    if (event.target.classList.contains('target')) {
+      this.getTicket(event.target);
+      console.log(this.tiket);
+      const description = event.target.nextElementSibling;
+      console.log(description);
+      description.classList.toggle('hidden');
+    }
+
     if (event.target.classList.contains('cancel')) {
       const popup = event.target.closest('.popup');
+      const deleteBox = event.target.closest('.deleteBox');
+
+      if (deleteBox) {
+        this.ticketForm.removeDeleteForm();
+        return;
+      }
+
       if (popup.classList.contains('formPopup')) {
         this.ticketForm.reset();
         this.ticketForm.remove();
@@ -55,15 +69,20 @@ export default class HelpDesk {
 
       this.ticketForm.updateForm(this.tiket);
       this.ticketForm.render('update');
-
-      return;
     }
 
     if (event.target.classList.contains('delete')) {
       this.getTicket(event.target);
 
+      this.ticketForm.render('delete');
+    }
+
+    if (event.target.classList.contains('ok')) {
       await this.ticketService.delete(this.idTiket);
       this.init();
+      this.idTiket = 0;
+      this.ticketForm.removeDeleteForm();
+      return;
     }
 
     if (event.target.classList.contains('item-status')) {
@@ -86,6 +105,7 @@ export default class HelpDesk {
       this.init();
     }
   }
+
   getTicket(event) {
     const item = event.closest('.list-item');
     const nameTicket = item.querySelector('.target');

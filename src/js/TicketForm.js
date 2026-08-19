@@ -5,6 +5,7 @@ import TicketService from './TicketService';
 export default class TicketForm {
   constructor() {
     this.ticketService = new TicketService();
+    this.widget = document.getElementById('root');
 
     this.createForm('new');
     this.allTicket = [];
@@ -60,15 +61,42 @@ export default class TicketForm {
     this.form = form;
   }
 
-  deleteForm() {}
+  deleteForm() {
+    this.deleteBoxInformation = document.createElement('div');
+    this.deleteBoxInformation.classList.add('deleteBox');
+
+    const deleteHeader = document.createElement('h3');
+    deleteHeader.classList.add('deleteBox-header');
+    deleteHeader.textContent = 'Удалить тикет';
+
+    const deleteText = document.createElement('span');
+    deleteText.classList.add('deleteBox-text');
+    deleteText.textContent = 'Вы уверены что хотите удалить тикет? Это действие необратимо?';
+
+    const deleteBtnBox = document.createElement('div');
+    deleteBtnBox.classList.add('deleteBox-btnBox');
+
+    const deleteButtonCancel = document.createElement('button');
+    deleteButtonCancel.classList.add('deleteBox-btn', 'cancel');
+    deleteButtonCancel.textContent = 'Отмена';
+
+    const deleteButtonApprove = document.createElement('button');
+    deleteButtonApprove.classList.add('deleteBox-btn', 'ok');
+    deleteButtonApprove.textContent = 'Ок';
+
+    deleteBtnBox.append(deleteButtonCancel, deleteButtonApprove);
+    this.deleteBoxInformation.append(deleteHeader, deleteText, deleteBtnBox);
+
+    return this.deleteBoxInformation;
+  }
 
   render(status) {
-    const widget = document.getElementById('root');
-    if (status === 'new' || 'update') {
-      widget.append(this.form);
+    this.widget = document.getElementById('root');
+    if (status === 'new' || status === 'update') {
+      this.widget.append(this.form);
     }
     if (status === 'delete') {
-      widget.append(this.deleteForm);
+      this.widget.append(this.deleteForm());
     }
   }
 
@@ -86,17 +114,17 @@ export default class TicketForm {
     this.form.remove();
   }
 
-  sendDataNewTicket() {
-    const dataforSend = this.getData(this.form);
-    const newTicket = this.ticketService.create(dataforSend, (error, newTicket) => {
-      if (error) {
-        console.log(`Ошибка при создании тикета: ${error.message}`);
-        return;
-      }
+  removeDeleteForm() {
+    this.deleteBoxInformation.remove();
+  }
 
-      this.reset();
-      this.remove();
-    });
+  async sendDataNewTicket() {
+    const dataforSend = this.getData(this.form);
+    const newTicket = await this.ticketService.create(dataforSend);
+
+    this.reset();
+    this.remove();
+    return newTicket;
   }
 
   updateForm(data) {
@@ -106,20 +134,14 @@ export default class TicketForm {
     this.form.elements.description.value = data.description || '';
   }
 
-  sendUpdateTicket(data) {
-    this.updateId = data.id;
-
+  async sendUpdateTicket(id) {
     const dataforSend = this.getData(this.form);
 
-    const updateTicket = this.ticketService.update(this.updateId, dataforSend, (error, newTicket) => {
-      if (error) {
-        console.log(`Ошибка при создании тикета: ${error.message}`);
-        return;
-      }
+    const updatedTicket = await this.ticketService.update(id, dataforSend);
 
-      this.reset();
-      this.remove();
-      this.updateId = null;
-    });
+    this.reset();
+    this.remove();
+    this.updateId = null;
+    return updatedTicket;
   }
 }
