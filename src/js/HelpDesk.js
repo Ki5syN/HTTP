@@ -19,30 +19,32 @@ export default class HelpDesk {
     this.allTikets = [];
     this.idTiket = 0;
 
-    this.onClick.bind(this);
+    this.onClick = this.onClick.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
+    this.onInput = this.onInput.bind(this);
 
-    this.container.addEventListener('click', this.onClick.bind(this));    
+    this.container.addEventListener('click', this.onClick);
+    this.container.addEventListener('submit', this.onSubmit);
+    this.container.addEventListener('input', this.onInput);
   }
 
   init() {
     this.ticketService.list((tickets) => {
       this.allTikets = tickets;
-      console.log(this.allTickets);
       this.ticketView.render(tickets);
     });
   }
 
   async onClick(event) {
     if (event.target.classList.contains('addItem')) {
+      this.idTiket = 0;
       this.ticketForm.render('new');
       return;
     }
 
     if (event.target.classList.contains('target')) {
       this.getTicket(event.target);
-      console.log(this.tiket);
       const description = event.target.nextElementSibling;
-      console.log(description);
       description.classList.toggle('hidden');
     }
 
@@ -56,6 +58,7 @@ export default class HelpDesk {
       }
 
       if (popup.classList.contains('formPopup')) {
+        this.idTiket = 0;
         this.ticketForm.reset();
         this.ticketForm.remove();
         return;
@@ -93,17 +96,10 @@ export default class HelpDesk {
 
       this.init();
     }
+  }
 
-    if (event.target.classList.contains('save')) {
-      if (this.idTiket) {
-        await this.ticketForm.sendUpdateTicket(this.idTiket);
-        this.idTiket = 0;
-      } else {
-        await this.ticketForm.sendDataNewTicket();
-      }
-
-      this.init();
-    }
+  onInput(event) {
+    if (event.target.closest('.formPopup')) event.target.setCustomValidity('');
   }
 
   getTicket(event) {
@@ -114,5 +110,36 @@ export default class HelpDesk {
     this.tiket = this.allTikets.find((el) => el.name === ticketEditName);
 
     this.idTiket = this.tiket.id;
+  }
+
+  async onSubmit(event) {
+    event.preventDefault();
+
+    if (event.target.classList.contains('formPopup')) {
+      const form = event.target;
+      let isFormValid = true;
+
+      [...form.elements].forEach((element) => {
+        if (element.required && element.value.trim() === '') {
+          element.setCustomValidity('Поле не может быть пустым!');
+          isFormValid = false;
+        } else {
+          element.setCustomValidity('');
+        }
+      });
+
+      if (!form.reportValidity() || !isFormValid) {
+        return;
+      }
+
+      if (this.idTiket) {
+        await this.ticketForm.sendUpdateTicket(this.idTiket);
+        this.idTiket = 0;
+      } else {
+        await this.ticketForm.sendDataNewTicket();
+      }
+
+      this.init();
+    }
   }
 }

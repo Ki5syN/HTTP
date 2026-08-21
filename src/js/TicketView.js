@@ -70,7 +70,6 @@ export default class TicketView {
 
     allTicket.forEach((el) => {
       const { description, name, status, created } = el;
-      console.log(el);
 
       this.createTargetItem(name, description, status, created);
     });

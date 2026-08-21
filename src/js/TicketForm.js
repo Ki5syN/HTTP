@@ -32,6 +32,7 @@ export default class TicketForm {
     const inputTarget = document.createElement('input');
     inputTarget.classList.add('popup-shortName');
     inputTarget.id = 'shortNameId';
+    inputTarget.required = true;
     inputTarget.name = 'name';
 
     const labelDescription = document.createElement('label');
@@ -41,6 +42,7 @@ export default class TicketForm {
     const inputDescription = document.createElement('textarea');
     inputDescription.classList.add('popup-description');
     inputDescription.id = 'descriptionId';
+    inputDescription.required = true;
     inputDescription.name = 'description';
 
     const boxBtn = document.createElement('div');

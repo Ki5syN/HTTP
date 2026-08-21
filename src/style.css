@@ -61,6 +61,8 @@ button {
   justify-content: start;
   align-items: center;
   padding: 20px 5px;
+  max-height: 400px;
+  overflow: overlay;
   border: 1px solid #3c454e;
   border-radius: 4px;
   list-style: none;
